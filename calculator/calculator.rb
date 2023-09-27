@@ -1,88 +1,103 @@
+require 'yaml'
+MESSAGES = YAML.load_file('calculator_messages.yml')
+
 # ask the user for two numbers
 # ask the user for an operation ot perform
 # perform the operation on the twonumbers
 # output the result
+
+####
+# BONUS
+####
+
+# Better Integer and Float Validation:
+# given input from user
+# validate it is an integer or float including 0
+# all messages in a external file
+# add a second language
+
+
 num1 = ''
 num2 = ''
-
+LANGUAGES = ['en', 'ne']
 def prompt(message)
   puts "=> #{message}"
 end
 
 def valid_number?(num)
-  num.to_i != 0
+  if /^-?\d+$/.match(num)
+    num = num.to_i
+  elsif /^-?\d*\.?\d+$/.match(num)
+    num = num.to_f
+  else
+    return false
+  end
+  num
 end
 
 def operation_to_message(op)
   case op
   when '1'
-    'Adding'
+    MESSAGES[LANG]['operation_one']
   when '2'
-    'Subtracting'
+    MESSAGES[LANG]['operation_two']
   when '3'
-    'Multiplying'
+    MESSAGES[LANG]['operation_three']
   when '4'
-    'Dividing'
+    MESSAGES[LANG]['operation_four']
   end
 end
 
-prompt("Welcome to my calculator! Please enter your name:")
-name = ''
+prompt(MESSAGES['welcome'])
+lang = ''
 loop do
-  name = gets.chomp
-
-  if name.empty?
-    prompt("make sure to use a valid name.")
-  else
-    break
-  end
+  lang = gets.chomp.downcase
+  break if LANGUAGES.include?(lang)
+  prompt(MESSAGES['valid_lang'])
 end
 
-prompt("Hello #{name}!")
+LANG = lang
+
+prompt (MESSAGES[LANG]['name'])
+name = gets.chomp
+prompt(MESSAGES[LANG]['greeting'] + "#{name}")
 
 loop do # main loop
   # get user input and check if valid
   loop do
-    prompt("Please enter a number:")
-    num1 = gets.chomp.to_i
-
+    prompt(MESSAGES[LANG]['first_number'])
+    num1 = gets.chomp
     if valid_number?(num1)
+      num1 = valid_number?(num1)
       break
     else
-      prompt("That does not look like a valid number....")
+      prompt(MESSAGES[LANG]['valid_number'])
     end
   end
-
+  # get user input and validate
   loop do
-    prompt("Please enter a second number:")
-    num2 = gets.chomp.to_i
-
+    prompt(MESSAGES[LANG]['second_number'])
+    num2 = gets.chomp
     if valid_number?(num2)
+      num2 = valid_number?(num2)
       break
     else
-      prompt("That does not look like a valid number....")
+      prompt(MESSAGES[LANG]['valid_number'])
     end
   end
-  operator_prompt = <<-MSG
-  Please enter a operation to perform:
-  1 to add
-  2 to subtract
-  3 to multiply
-  4 to divide
-  MSG
 
-  prompt(operator_prompt)
+  prompt(MESSAGES[LANG]['operator_prompt'])
   operator = ''
   loop do
     operator = gets.chomp
     if %w(1 2 3 4).include?(operator)
       break
     else
-      prompt("Please choose 1, 2, 3, or 4")
+      prompt(MESSAGES[LANG]['valid_operator'])
     end
   end
 
-  prompt("#{operation_to_message(operator)} the two numbers...")
+  prompt("#{operation_to_message(operator)}")
 
   # perform selected operation on numbers
   case operator
@@ -93,14 +108,14 @@ loop do # main loop
   when '3'
     result = num1 * num2
   when '4'
-    result = num1.to_f / num2
+    result = num1 / num2
   end
 
-  prompt("The result is #{result}")
+  prompt(MESSAGES[LANG]['result'] + "#{result}")
 
-  prompt("Do you want to perform another calculation (y to continue)?")
+  prompt(MESSAGES[LANG]['continue'])
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
 end
 
-prompt("Thank you for using my calculator!")
+prompt(MESSAGES[LANG]['end'])
