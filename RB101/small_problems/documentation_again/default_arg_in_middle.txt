@@ -1,0 +1,9 @@
+
+
+def my_method(a, b = 2, c = 3, d)
+  p [a, b, c, d]
+end
+
+my_method(4, 5, 6)
+
+In this case ruby will first fill in the argumets and then the first argument  with default value and finally the last argument. [4, 5, 3, 6]
