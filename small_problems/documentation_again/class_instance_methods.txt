@@ -1,1 +1,0 @@
-methods that start with the :: ar class methods called on classes and methods that start with # are instance methods called on objects
