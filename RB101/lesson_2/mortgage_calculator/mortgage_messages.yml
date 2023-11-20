@@ -1,0 +1,9 @@
+welcome: "Welcome to the loan payment calculator. Please enter your name: "
+valid_number: "That is not a valid number."
+loan_amount: "Please enter the loan amount: "
+percentage_rate: "Enter the annual percentage rate: "
+loan_duration: "Enter the loan duration in months: "
+another_calculation: "Would you like to calculate another payment? (Enter 'Y' for yes and 'N' for no)"
+valid_input_exit: "That doesn't look right, please enter 'Y' or 'N'"<<
+thank_you: "Thank you for using the loan payment calculator"
+goodbye: "goodbye"
