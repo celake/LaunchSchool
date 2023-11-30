@@ -80,6 +80,8 @@ end
 def joinor(array, separator = ", ", conjuction = "or")
   if array.length == 2
     "#{array[0].to_s} #{conjuction} #{array[1].to_s}"
+  elsif array.length == 1
+    array[0]
   else
     array[0..-2].join(separator) + "#{separator}#{conjuction} " + array[-1].to_s
   end
@@ -117,11 +119,10 @@ def computer_chose_square(board)
       nil
     end
   end
-
   if moves.all?(nil)
     board.select { |_key, value| value == ' ' }.keys.sample
   else
-    moves.select { |item| item == !item.nil? }.sample
+    moves.select { |item| item  }.sample
   end
 end
 
@@ -173,7 +174,7 @@ end
 ##################
 
 puts "Welcome to Tic Tac Toe! Please enter your name to get started: "
-player_name = get_player_name
+player_name = set_player_name
 game_instructions(BOARD_WITH_MARKERS)
 prompt("Good Luck #{player_name}")
 match = game_choice?

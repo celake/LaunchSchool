@@ -35,18 +35,18 @@ ALGORITHM:
 
 =end
 
-def joinor(array, separator = ", ", conjuction = "or")
-  if array.length == 2
-    "#{array[0].to_s} #{conjuction} #{array[1].to_s}"
-  else
-    array.join(separator) + "#{separator}#{conjuction} "+ array[-1].to_s
-  end
-end
+# def joinor(array, separator = ", ", conjuction = "or")
+#   if array.length == 2
+#     "#{array[0].to_s} #{conjuction} #{array[1].to_s}"
+#   else
+#     array.join(separator) + "#{separator}#{conjuction} "+ array[-1].to_s
+#   end
+# end
 
-p joinor([1, 2])                   # => "1 or 2"
-p joinor([1, 2, 3])                # => "1, 2, or 3"
-p joinor([1, 2, 3], '; ')          # => "1; 2; or 3"
-p joinor([1, 2, 3], ', ', 'and')   # => "1, 2, and 3"
+# p joinor([1, 2])                   # => "1 or 2"
+# p joinor([1, 2, 3])                # => "1, 2, or 3"
+# p joinor([1, 2, 3], '; ')          # => "1; 2; or 3"
+# p joinor([1, 2, 3], ', ', 'and')   # => "1, 2, and 3"
 
 
 
@@ -84,36 +84,41 @@ ALGORITHM:
      
 =end
 
-# def computer_choose_square(board, lines)
-#   moves = lines.map do |line|
-#     #binding.pry
-#     if board.values_at(*line).count('X') == 2
-#       board.select{|k,v| line.include?(k) && v == ' '}.keys.first
-#     else
-#       nil
-#     end
-#   end
-#   if moves.all?(nil)
-#     nil
-#   else
-#     moves.select {|item| item != nil}.sample
-#   end
-# end
+def computer_chose_square(board)
+  moves = WINNING_CONDITIONS.map do |line|
+    if board.values_at(*line).count('O') == 2
+      board.select { |k, v| line.include?(k) && v == ' ' }.keys.first
+    elsif board.values_at(*line).count('X') == 2
+      board.select { |k, v| line.include?(k) && v == ' ' }.keys.first
+    elsif board[5] == ' '
+      5
+    else
+      nil
+    end
+  end
+  p moves
+  if moves.all?(nil)
+    board.select { |_key, value| value == ' ' }.keys.sample
+  else
+    p moves.select { |item| item }
+    moves.select { |item| item }.sample
+  end
+end
 
 
 
-# WINNING_CONDITIONS = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
-#                      [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
-#                      [[1, 5, 9], [3, 5, 7]]              # diagonals
+WINNING_CONDITIONS = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
+                     [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # columns
+                      [[1, 5, 9], [3, 5, 7]]              # diagonals
 
                      
-# board1 = {1=>"X", 2=>" ", 3=>"X", 4=>" ", 5=>"O", 6=>" ", 7=>" ", 8=>" ", 9=>" "}
-# p choose_square(board1, WINNING_CONDITIONS) #== 2
-# board2 = {1=>"X", 2=>"O", 3=>"X", 4=>"X", 5=>"O", 6=>" ", 7=>" ", 8=>" ", 9=>" "} 
-# p choose_square(board2, WINNING_CONDITIONS) #== 7
+board1 = {1=>"X", 2=>" ", 3=>"X", 4=>" ", 5=>"O", 6=>" ", 7=>" ", 8=>" ", 9=>" "}
+p computer_chose_square(board1) #== 2
+board2 = {1=>"X", 2=>"O", 3=>"X", 4=>"X", 5=>"O", 6=>" ", 7=>" ", 8=>" ", 9=>" "} 
+p computer_chose_square(board2) #== 7
 
-current_player = ['player_name', 'computer'].sample
+# current_player = ['player_name', 'computer'].sample
 
-switch_player(current_player) 
-  current_player == player_name ? current_player = 'computer' : current_player = player_name
-end
+# switch_player(current_player) 
+#   current_player == player_name ? current_player = 'computer' : current_player = player_name
+# end
