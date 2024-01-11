@@ -10,9 +10,6 @@ WINNING_CONDITIONS = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
 BOARD_WITH_MARKERS = { 1 => '1', 2 => '2', 3 => '3', 4 => '4', 5 => '5',
                        6 => '6', 7 => '7', 8 => '8', 9 => '9' }
 
-computer_score = 0
-player_score = 0
-
 def prompt(message)
   puts "=> #{message}"
 end
@@ -34,7 +31,7 @@ def game_instructions(board)
   prompt("Choose if you would like to play a Match or individual games")
   prompt("First player to win 5 games wins a Match")
   prompt("The starting player is randomly selected.")
-  prompt("On your turn enter number of the square where you would like to place your maker")
+  prompt("On your turn enter number of the square where you would like to place your marker")
   display_board(board)
 end
 
@@ -42,9 +39,9 @@ def game_choice?
   loop do
     prompt("Press 'M' to start a match or 'G' start a single game")
     response = gets.chomp
-    if response.downcase == 'm'
+    if response.downcase == 'm' || response.downcase == 'match'
       return true
-    elsif response.downcase == 'g'
+    elsif response.downcase == 'g' || response.downcase == 'game'
       return false
     else
       prompt("Sorry, that is not a valid choice.")
@@ -79,7 +76,7 @@ end
 
 def joinor(array, separator = ", ", conjuction = "or")
   if array.length == 2
-    "#{array[0].to_s} #{conjuction} #{array[1].to_s}"
+    "#{array[0]} #{conjuction} #{array[1]}"
   elsif array.length == 1
     array[0]
   else
@@ -104,26 +101,31 @@ def player_move(board, player)
 end
 
 def switch_player(current_player)
-  current_player = current_player == 'player' ? 'Computer' : 'player'
+  current_player == 'player' ? 'Computer' : 'player'
+end
+
+def player_turn(board, current_player)
+  display_board(board)
+  player_move(board, current_player)
+end
+
+def select_square(board, moves)
+  if moves.all?(nil)
+    board.select { |_key, value| value == ' ' }.keys.sample
+  else
+    moves.select { |item| item }.sample
+  end
 end
 
 def computer_chose_square(board)
   moves = WINNING_CONDITIONS.map do |line|
-    if board.values_at(*line).count('O') == 2
-      board.select { |k, v| line.include?(k) && v == ' ' }.keys.first
-    elsif board.values_at(*line).count('X') == 2
+    if board.values_at(*line).count(COMPUTER_MARKER) == 2 || board.values_at(*line).count(PLAYER_MARKER) == 2
       board.select { |k, v| line.include?(k) && v == ' ' }.keys.first
     elsif board[5] == ' '
       5
-    else
-      nil
     end
   end
-  if moves.all?(nil)
-    board.select { |_key, value| value == ' ' }.keys.sample
-  else
-    moves.select { |item| item  }.sample
-  end
+  select_square(board, moves)
 end
 
 def board_full?(board)
@@ -150,8 +152,6 @@ def match_winner(player, computer, player_name)
     player_name
   elsif computer == 5
     "Computer"
-  else
-    nil
   end
 end
 
@@ -178,21 +178,24 @@ player_name = set_player_name
 game_instructions(BOARD_WITH_MARKERS)
 prompt("Good Luck #{player_name}")
 match = game_choice?
+computer_score = 0
+player_score = 0
 
 loop do
   system 'clear'
   board = initialize_board
   current_player = ['player', 'Computer'].sample
+
   loop do
     system 'clear'
     if match
       prompt("Current scores are #{player_name}: #{player_score} and Computer: #{computer_score}")
     end
-    display_board(board)
-    player_move(board, current_player)
+    player_turn(board, current_player)
     current_player = switch_player(current_player)
     break if winner?(board, player_name) || board_full?(board)
   end
+  system 'clear'
   display_board(board)
   if winner?(board, player_name)
     prompt "#{find_winner(board, player_name)} won!"
@@ -202,10 +205,12 @@ loop do
   else
     prompt "It's a tie!"
   end
-
+  
   if match
+    display_board(board)
     if match_winner(player_score, computer_score, player_name)
-      prompt("The winner of this match is #{match_winner(player_score, computer_score, player_name)}")
+      winner = match_winner(player_score, computer_score, player_name)
+      prompt("The winner of this match is #{winner}")
       if play_again?
         computer_score = 0
         player_score = 0
