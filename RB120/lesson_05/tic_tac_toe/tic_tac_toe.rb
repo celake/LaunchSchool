@@ -14,6 +14,10 @@ class Board
   def set_square_at(key, marker)
     @squares[key].marker = marker
   end
+
+  def unmarked_keys
+    @squares.select{|_, sq| sq.unmarked?}.keys
+  end
 end
 
 class Square
@@ -21,6 +25,10 @@ class Square
 
   def initialize(marker)
     @marker = marker
+  end
+
+  def unmarked?
+    marker == Board::INITIAL_MARKER
   end
 
   def to_s
@@ -53,18 +61,18 @@ class TTTGame
   end
 
   def human_move
-    puts "Choose an available square 1, 2, 3, 4, 5, 6, 7, 8, or 9: "
+    puts "Choose an available square (#{board.unmarked_keys.join(', ')}): "
     square = nil
     loop do 
       square = gets.chomp.to_i
-      break if (1..9).include?(square)
+      break if board.unmarked_keys.include?(square)
       puts "Sorry that is not a valid square, try again."
     end
     board.set_square_at(square, human.marker)
   end
 
   def computer_move
-    board.set_square_at((1..9).to_a.sample, computer.marker)
+    board.set_square_at(board.unmarked_keys.sample, computer.marker)
   end
 
   def display_board
@@ -89,10 +97,9 @@ class TTTGame
 
   def play
     display_welcome_message
+    display_board
     loop do
-      display_board
       human_move
-      display_board
       #break if someone_won? || board_full?
 
       computer_move
