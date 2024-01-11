@@ -1,33 +1,24 @@
-=begin
-Game description:
-  Tic Tac Toe is a 2-player board game played on a 3x3 grid. Players take turns
-  marking a square. The first player to mark 3 squares in a row wins.
-
-  Nouns: board, player, square, grid
-  Verbs: play, mark
-
-  Board
-  Square
-  Player
-    - mark
-    - play (move)
-
-=end
+require 'pry'
 
 class Board
   INITIAL_MARKER = ' '
   def initialize
     @squares = {}
-    (1..9).each {|key| @squares[key] = INITIAL_MARKER}
+    (1..9).each {|key| @squares[key] = Square.new(INITIAL_MARKER)}
   end
 
-  def get_square_at(n)
-    @squares[n]
+  def get_square_at(key)
+    @squares[key]
   end
 
+  def set_square_at(key, marker)
+    @squares[key].marker = marker
+  end
 end
 
 class Square
+  attr_accessor :marker
+
   def initialize(marker)
     @marker = marker
   end
@@ -38,23 +29,19 @@ class Square
 end
 
 class Player
-  def initialize
-    #marker for players marker
-  end
-
-  def mark
-
-  end
-
-  def play
-    #possible called move
+  attr_reader :marker
+  def initialize(marker)
+    @marker = marker
   end
 end
 
 class TTTGame
-  attr_reader :board
+  attr_reader :board, :human, :computer
+
   def initialize
     @board = Board.new
+    @human = Player.new("X")
+    @computer = Player.new("O")
   end
 
   def display_welcome_message
@@ -63,8 +50,15 @@ class TTTGame
     puts ""
   end
 
-  def display_goodbye_message
-    puts "Thank you for playing Tic Tac Toe. Goodbye!"
+  def human_move
+    puts "Choose an available square 1, 2, 3, 4, 5, 6, 7, 8, or 9: "
+    square = nil
+    loop do 
+      square = gets.chomp.to_i
+      break if (1..9).include?(square)
+      puts "Sorry that is not a valid square, try again."
+    end
+    board.set_square_at(square, human.marker)
   end
 
   def display_board
@@ -81,17 +75,22 @@ class TTTGame
     puts "  #{board.get_square_at(7)}  |  #{board.get_square_at(8)}  |  #{board.get_square_at(9)}"
     puts "     |     |"
     puts ""
-  end
+  end 
   
+  def display_goodbye_message
+    puts "Thank you for playing Tic Tac Toe. Goodbye!"
+  end
+
   def play
     display_welcome_message
     loop do
       display_board
+      human_move
+      display_board
       break
-      player_one_moves
       break if someone_won? || board_full?
 
-      player_two_moves
+      computer_move
       break if someone_won? || board_full?
     end
     #display_winner
