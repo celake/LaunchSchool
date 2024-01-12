@@ -86,12 +86,14 @@ end
 class Human < Player
   attr_reader :name
 
-  def initialize
+  def initialize(marker)
+    super
     set_name
   end
 
   def set_name 
     name = ''
+    system 'clear'
     loop do 
       puts 'Please enter your name: '
       name = gets.chomp
@@ -106,12 +108,14 @@ end
 class Computer < Player
   attr_reader :name
 
-  def initialize
+  def initialize(marker)
+    super
     set_name
   end
 
   def set_name 
     @name = ['Weeberry', 'Fudgeface', 'Buzzcan Pieton', 'Boboman', 'Poorfy Beanierider'].sample
+  end
 end
 
 # Game Orcestration Engine
@@ -123,8 +127,8 @@ class TTTGame
 
   def initialize
     @board = Board.new
-    @human = Player.new(HUMAN_MARKER)
-    @computer = Player.new(COMPUTER_MARKER)
+    @human = Human.new(HUMAN_MARKER)
+    @computer = Computer.new(COMPUTER_MARKER)
     @current_player = FIRST_TO_MOVE
   end
 
@@ -142,9 +146,12 @@ class TTTGame
 
   def display_welcome_message
     clear
-    puts 'Welcome to Tic Tac Toe!'
-
-    puts ''
+    puts "Welcome to Tic Tac Toe #{human.name}!"
+    puts "Today you are playing against #{computer.name}"
+    puts 'Press enter to continue'
+    loop do 
+      break if gets.chomp
+    end
   end
 
   def main_game
@@ -195,16 +202,16 @@ class TTTGame
 
   def display_board
     clear
-    puts "You're a #{human.marker}. Computer is a #{computer.marker}"
+    puts "#{human.name} is a #{human.marker}. #{computer.name} is a #{computer.marker}"
     board.draw
   end
 
   def display_winner
     display_board
     if board.winning_marker == human.marker
-      puts 'You won!'
+      puts "#{human.name} won!"
     elsif board.winning_marker == computer.marker
-      puts 'Computer won!'
+      puts "#{computer.name} won!"
     else
       puts "Board is full, it's a tie!"
     end
@@ -223,7 +230,7 @@ class TTTGame
   end
 
   def display_goodbye_message
-    puts 'Thank you for playing Tic Tac Toe. Goodbye!'
+    puts "Thank you for playing Tic Tac Toe. Goodbye #{human.name}!"
   end
 
   def reset
