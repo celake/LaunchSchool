@@ -1,17 +1,32 @@
 require 'pry'
 
 class Board
+  WINNING_CONDITIONS = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] + # rows
+                       [[1, 4, 7], [2, 5, 8], [3, 6, 9]] + # cols
+                       [[1, 5, 9], [3, 5, 7]]              # diagonals
 
   def initialize
     @squares = {}
-    (1..9).each {|key| @squares[key] = Square.new}
+    reset
   end
 
-  def get_square_at(key)
-    @squares[key]
-  end
-
-  def set_square_at(key, marker)
+  def draw
+    puts ""
+    puts "     |     |"
+    puts "  #{@squares[1]}  |  #{@squares[2]}  |  #{@squares[3]}"
+    puts "     |     |"
+    puts "-----+-----+-----"
+    puts "     |     |"
+    puts "  #{@squares[4]}  |  #{@squares[5]}  |  #{@squares[6]}"
+    puts "     |     |"
+    puts "-----+-----+-----"
+    puts "     |     |"
+    puts "  #{@squares[7]}  |  #{@squares[8]}  |  #{@squares[9]}"
+    puts "     |     |"
+    puts ""
+  end 
+  
+  def []=(key, marker)
     @squares[key].marker = marker
   end
 
@@ -21,6 +36,24 @@ class Board
 
   def full?
     unmarked_keys.empty?
+  end
+
+  def winner?
+    !!winning_marker
+  end
+
+  def winning_marker
+    winner = " "
+    WINNING_CONDITIONS.each do |line|
+      if line.all? {|current| @squares[line[0]].marker == @squares[current].marker}
+        winner = @squares[line[0]].marker
+      end 
+    end
+    return winner == " " ? nil : winner
+  end
+
+  def reset
+    (1..9).each {|key| @squares[key] = Square.new}
   end
 
 end
@@ -60,8 +93,12 @@ class TTTGame
     @computer = Player.new(COMPUTER_MARKER)
   end
 
-  def display_welcome_message
+  def clear
     system 'clear'
+  end
+
+  def display_welcome_message
+    clear
     puts "Welcome to Tic Tac Toe!"
     puts ""
   end
@@ -74,34 +111,40 @@ class TTTGame
       break if board.unmarked_keys.include?(square)
       puts "Sorry that is not a valid square, try again."
     end
-    board.set_square_at(square, human.marker)
+    board[square] = human.marker
   end
 
   def computer_move
-    board.set_square_at(board.unmarked_keys.sample, computer.marker)
+    board[board.unmarked_keys.sample] = computer.marker
   end
 
   def display_board
-    system 'clear'
+    clear
     puts "You're a #{human.marker}. Computer is a #{computer.marker}"
-    puts ""
-    puts "     |     |"
-    puts "  #{board.get_square_at(1)}  |  #{board.get_square_at(2)}  |  #{board.get_square_at(3)}"
-    puts "     |     |"
-    puts "-----+-----+-----"
-    puts "     |     |"
-    puts "  #{board.get_square_at(4)}  |  #{board.get_square_at(5)}  |  #{board.get_square_at(6)}"
-    puts "     |     |"
-    puts "-----+-----+-----"
-    puts "     |     |"
-    puts "  #{board.get_square_at(7)}  |  #{board.get_square_at(8)}  |  #{board.get_square_at(9)}"
-    puts "     |     |"
-    puts ""
+    board.draw
   end 
   
   def display_winner
     display_board
-    puts "No winner, the board is full"
+    if board.winning_marker == human.marker
+      puts "You won!"
+    elsif board.winning_marker == computer.marker
+      puts "Computer won!"
+    else
+      puts "Board is full, it's a tie!"
+    end
+  end
+
+  def play_again?
+    play_again = ''
+    loop do
+      puts 'Would you like to play agian? (y/n)'
+      play_again = gets.chomp.downcase
+      break if %w[y yes n no].include?(play_again)
+
+      puts 'Sorry, invalid input.'
+    end
+    %w[y yes].include?(play_again) ? true : false
   end
 
   def display_goodbye_message
@@ -110,18 +153,21 @@ class TTTGame
 
   def play
     display_welcome_message
-    display_board
     loop do
-      human_move
-      break if board.full?
-      #break if someone_won? || board.full?
-
-      computer_move
       display_board
-      break if board.full?
-      #break if someone_won? || board.full?
+      loop do
+        human_move
+        break if board.winner? || board.full?
+
+        computer_move
+        display_board
+        break if board.winner? || board.full?
+      end
+      display_winner
+      break unless play_again?
+      
+      board.reset
     end
-    display_winner
     display_goodbye_message
   end
 
